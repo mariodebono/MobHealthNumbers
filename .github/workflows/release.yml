@@ -1,0 +1,51 @@
+name: Build and release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python for testing and packaging
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install development dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements-dev.txt
+
+      - name: Test and build installable ZIP
+        id: build
+        run: python tools/package.py --github-output "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_COMMIT: ${{ github.sha }}
+          VERSION: ${{ steps.build.outputs.version }}
+          TAG: ${{ steps.build.outputs.tag }}
+          ARCHIVE: ${{ steps.build.outputs.archive }}
+          CHECKSUM: ${{ steps.build.outputs.checksum }}
+        run: |
+          gh release create "$TAG" "$ARCHIVE" "$CHECKSUM" \
+            --target "$RELEASE_COMMIT" \
+            --title "Mob Health Numbers $VERSION" \
+            --notes-file FEATURES.md \
+            --latest

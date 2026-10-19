@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+dist/
+build/
+*.bak
+.env
+.env.*
+WTF/
+Logs/
+SavedVariables/
+.DS_Store
+Thumbs.db

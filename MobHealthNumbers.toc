@@ -1,0 +1,11 @@
+## Interface: 11402
+## Title: Mob Health Numbers
+## Notes: Independent NPC health learning, caching, target numbers and hover details. /mobhp help
+## Author: Mario Debono
+## Version: 1.0.0
+## X-License: MIT
+## SavedVariables: MobHealthNumbersSettings, MobHealthLearningDB
+
+HealthLearner.lua
+MobHealthNumbers.lua
+Options.lua
